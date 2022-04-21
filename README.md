@@ -1,4 +1,4 @@
-# bees_challenge
+# challenge
 
 ## Project setup
 ```
