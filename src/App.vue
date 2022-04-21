@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="global-scroll">
     <router-view />
   </div>
 </template>

@@ -4,20 +4,20 @@
         cols="2" 
         v-for="(result, i) in results"
         :key="i"
-        :id="result?.Title || i"
-        @mouseover="onMouseHoverCard(result, i)"
-        @mouseleave="onMouseLeaveCard(result, i)"
+        :id="(result?.imdbID)"
+        @mouseover="() => onMouseHoverCard(result)"
+        @mouseleave="() => onMouseLeaveCard(result)"
     >
         <img v-if="result?.Poster !== 'N/A'" :src="result?.Poster" class="card-image" />
         <img v-else :src="require('@/assets/images/bees.png')" class="card-image" />
         <div class="display-none">
-            <h3 @click="clickOnCard(result)" >{{ result?.Title }}<h2 >{{ result?.Year }}</h2></h3>  
+            <h3 @click="() => clickOnCard(result)" >{{ result?.Title }}<h2 >{{ result?.Year }}</h2></h3>  
             <div>
-                <b-button class="btn-detail" v-b-modal.modal-1 id="bv-modal-1">Detail</b-button>
-                <b-button v-if="result?.wishList" @click="removeFromWishList(result)" variant="success">Wishlist</b-button>
-                <b-button v-else variant="danger"  @click="addToWishList(result)" >Add to Wishlist</b-button>
+                <b-button class="btn-detail" v-b-modal="'modal-1'+result?.imdbID" id="bv-modal-1">Detail</b-button>
+                <b-button v-if="result?.wishList" @click="() => removeFromWishList(result)" variant="success">Wishlist</b-button>
+                <b-button v-else variant="danger"  @click="() => addToWishList(result)" >Add to Wishlist</b-button>
                 <b-modal 
-                    id="modal-1" 
+                    :id="'modal-1'+ result?.imdbID" 
                     title="Detail" 
                     hide-footer 
                     size="xl"
@@ -64,25 +64,27 @@ export default {
   },
   watch: {
     items: function (value, oldValue) {
+        console.log("watch", value, oldValue)
         if (value.length !== oldValue.length) {
+            console.log("Entrou", value, oldValue)
             this.results = value;
         } 
     },
   },
   methods: {
-      onMouseHoverCard(item, i){
-          document?.getElementById(item.Title || i)?.getElementsByTagName('img')[0]?.classList.add("card-image-extra")
-          document?.getElementById(item.Title || i)?.getElementsByTagName('div')[0]?.classList.add("info-div")
+      onMouseHoverCard(item){
+          document?.getElementById(item.imdbID)?.getElementsByTagName('img')[0]?.classList.add("card-image-extra")
+          document?.getElementById(item.imdbID)?.getElementsByTagName('div')[0]?.classList.add("info-div")
       },
-      onMouseLeaveCard(item, i){
-          document?.getElementById(item.Title || i)?.getElementsByTagName('img')[0]?.classList.remove("card-image-extra")
-          document?.getElementById(item.Title || i)?.getElementsByTagName('div')[0]?.classList.remove("info-div")
+      onMouseLeaveCard(item){
+          document?.getElementById(item.imdbID)?.getElementsByTagName('img')[0]?.classList.remove("card-image-extra")
+          document?.getElementById(item.imdbID)?.getElementsByTagName('div')[0]?.classList.remove("info-div")
       },
       clickOnCard(item) {
           router.push(`/detail/${item?.imdbID}`)
       },
-      onClose() {
-          this.$parent.getWishList();
+      async onClose() {
+          await this.$parent.getWishList();
       },
       async addToWishList(item){
         await localStorageHelper.saveToWishList(item)

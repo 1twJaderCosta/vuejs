@@ -39,6 +39,7 @@ export default {
     InputSearch,
     HomeCards
   },
+  
   data() {
       return {
         list: [],
@@ -51,28 +52,31 @@ export default {
       this.getWishList()
   },
   methods: {
-      async getWatch(e) {
+      updateList(list, wish){
+        const newList = []
+        for (const x of list){
+          let exist = false
+          for (const y of wish){
+            if(x.imdbID === y.imdbID){
+              exist = true
+              continue;
+            }
+          }
+          x.wishList = exist
+          newList.push(x)
+        }
+        return newList
+      },
+      async getWatch(e, f) {
         try{
-          const word = e?.target?.value
+          const word = f || e?.target?.value
           this.searchWord = word
           if( (word || '').length >= 3 ){
             const response = await axios.get(`${config?.BASEURL}watch/search?word=${word}`);
             if (response?.data?.Search?.length > 0){
               const wish = await localStorageHelper.getFromWishList()
               const res = response?.data?.Search;
-              const newList = []
-              for (const x of res){
-                let exist = false
-                for (const y of wish){
-                  if(x.imdbID === y.imdbID){
-                    exist = true
-                    continue;
-                  }
-                }
-                x.wishList = exist
-                
-                newList.push(x)
-              }
+              const newList = this.updateList(res, wish)
               this.list = newList
               // const concatList = this.wishList.concat(res)
               // const removeDuplicate = concatList.filter((v,i,a)=>a.findIndex(v2=>(v2.imdbID===v.imdbID))===i)
@@ -97,6 +101,8 @@ export default {
           x.wishList = true
           newWishList.push(x)
         }
+        const newList = this.updateList(this.list, wishList)
+        this.list = newList
         this.wishList = newWishList
       }
   }
