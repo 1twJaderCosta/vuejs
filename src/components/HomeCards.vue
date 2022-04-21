@@ -7,12 +7,33 @@
         :id="result?.Title || i"
         @mouseover="onMouseHoverCard(result, i)"
         @mouseleave="onMouseLeaveCard(result, i)"
-        @click="clickOnCard(result)"
     >
         <img v-if="result?.Poster !== 'N/A'" :src="result?.Poster" class="card-image" />
         <img v-else :src="require('@/assets/images/bees.png')" class="card-image" />
         <div class="display-none">
-            <h3 >{{ result?.Title }}<h2 >{{ result?.Year }}</h2></h3>  
+            <h3 @click="clickOnCard(result)" >{{ result?.Title }}<h2 >{{ result?.Year }}</h2></h3>  
+            <div>
+                <b-button class="btn-detail" v-b-modal.modal-1 id="bv-modal-1">Detail</b-button>
+                <b-button v-if="result?.wishList" @click="removeFromWishList(result)" variant="success">Wishlist</b-button>
+                <b-button v-else variant="danger"  @click="addToWishList(result)" >Add to Wishlist</b-button>
+                <b-modal 
+                    id="modal-1" 
+                    title="Detail" 
+                    hide-footer 
+                    size="xl"
+                    header-bg-variant="dark"
+                    header-text-variant="light"
+                    body-bg-variant="dark"
+                    body-text-variant="light"
+                    footer-bg-variant="dark"
+                    footer-text-variant="light"
+                    @hide="onClose"
+                >
+                    <div class="main-div-modal">
+                        <DetailCard :id="result?.imdbID" />
+                    </div>
+                </b-modal>
+            </div>
         </div>
     </b-col>
   </b-row>
@@ -21,6 +42,8 @@
 
 <script>
 import router from '@/router'
+import DetailCard from '@/components/DetailCard.vue'
+import localStorageHelper from '@/utils/localstorage'
 
 export default {
   name: 'HomeCards',
@@ -30,6 +53,9 @@ export default {
         required: false,
         default: () => [],
       }
+  },
+  components: {
+    DetailCard
   },
   data() {
       return {
@@ -54,6 +80,20 @@ export default {
       },
       clickOnCard(item) {
           router.push(`/detail/${item?.imdbID}`)
+      },
+      onClose() {
+          this.$parent.getWishList();
+      },
+      async addToWishList(item){
+        await localStorageHelper.saveToWishList(item)
+        this.$parent.getWishList();
+      },
+      async checkIfExist(item){
+          return await localStorageHelper.checkIfExist(item)
+      },
+      async removeFromWishList(item){
+          await localStorageHelper.removeFromWishList(item)
+          this.$parent.getWishList();
       }
   }
 }
@@ -96,5 +136,8 @@ h2 {
     font-size: 15px;
     color: white;
     text-shadow: 2px 2px 4px #000000;
+}
+.btn-detail {
+    margin-right: 5px;
 }
 </style>

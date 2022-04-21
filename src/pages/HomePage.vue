@@ -4,20 +4,31 @@
       <img class="img-cinema" src='@/assets/images/cinema.png' />
       <h1>WEISS CINEMA</h1>
     </div>
-    <SearchAutocomplete
+    <InputSearch
         @input="getWatch"
         :items="list"
     />
+    <h3 v-if="searchWord !== '' && notFound === '' " >Search Results For "{{ searchWord }}"</h3>
+    <h3 v-if="notFound !== '' " >Results Not Found For "{{ notFound }}"</h3>
+    
+    <div v-if="notFound || searchWord" class="line"/>
     <HomeCards :items="list" />
+
+      <div v-if="wishList && wishList.length > 0" class="wishlistdiv" >
+        <h3>Your Wishlist</h3>
+        <div class="line" />
+      </div>
+      <HomeCards :items="wishList" />
   </div>
 </template>
 
 
 <script>
 import axios from 'axios';
-import SearchAutocomplete from '@/components/SearchAutocomplete.vue'
+import InputSearch from '@/components/InputSearch.vue'
 import HomeCards from '@/components/HomeCards.vue'
 import config from '@/config'
+import localStorageHelper from '@/utils/localstorage'
 
 export default {
   name: 'HomePage',
@@ -25,32 +36,68 @@ export default {
     msg: String
   },
   components: {
-    SearchAutocomplete,
+    InputSearch,
     HomeCards
   },
   data() {
       return {
-        list: []
+        list: [],
+        wishList: [],
+        notFound: '',
+        searchWord: ''
       }
+  },
+  mounted() {
+      this.getWishList()
   },
   methods: {
       async getWatch(e) {
         try{
           const word = e?.target?.value
+          this.searchWord = word
           if( (word || '').length >= 3 ){
-            // GET request using axios with async/await
             const response = await axios.get(`${config?.BASEURL}watch/search?word=${word}`);
-            //console.log("response", response)
             if (response?.data?.Search?.length > 0){
-              this.list = response?.data?.Search;
+              const wish = await localStorageHelper.getFromWishList()
+              const res = response?.data?.Search;
+              const newList = []
+              for (const x of res){
+                let exist = false
+                for (const y of wish){
+                  if(x.imdbID === y.imdbID){
+                    exist = true
+                    continue;
+                  }
+                }
+                x.wishList = exist
+                
+                newList.push(x)
+              }
+              this.list = newList
+              // const concatList = this.wishList.concat(res)
+              // const removeDuplicate = concatList.filter((v,i,a)=>a.findIndex(v2=>(v2.imdbID===v.imdbID))===i)
+              // this.list = removeDuplicate
+              this.notFound = ''
             } else {
               this.list = []
+              this.notFound = word
             }
+          } else {
+            this.list = []
+            this.notFound = ''
           }
         } catch(err){
-          console.log("err", err)
-          this.list = []
+          console.log(err)
         }
+      },
+      async getWishList() {
+        const wishList = await localStorageHelper.getFromWishList()
+        const newWishList = []
+        for (const x of wishList){
+          x.wishList = true
+          newWishList.push(x)
+        }
+        this.wishList = newWishList
       }
   }
 }
@@ -66,6 +113,7 @@ h1 {
 .img-cinema {
   width: 85px;
   height: 70px;
+  margin-left: 1%;
 }
 .flex-row {
   display: flex;
@@ -73,5 +121,18 @@ h1 {
 }
 .main-container {
   padding: 30px;
+}
+.line {
+  border-top: 1px solid white;
+  height: 1px;
+  margin-left: 1.6%;
+  margin-right: 1.6%;
+}
+.wishlistdiv {
+  margin-top: 10px;
+}
+h3 {
+  margin-left: 1.6%;
+  min-width: 20px;
 }
 </style>
