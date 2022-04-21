@@ -1,6 +1,8 @@
 <template>
+  <SpinnerGlobal 
+  v-if="loading"
+  />
   <b-container class="main-container">
-    
     <b-row>
       <b-col 
           cols="4"
@@ -66,9 +68,12 @@
 
 <script>
 import axios from 'axios';
+
 import config from '@/config'
 import localStorageHelper from '@/utils/localstorage'
 import router from '@/router'
+
+import SpinnerGlobal from '@/components/SpinnerGlobal.vue'
 
 export default {
   mounted() {
@@ -79,10 +84,14 @@ export default {
       type: String,
     }
   },
+  components: {
+    SpinnerGlobal,
+  },
   data() {
       return {
         item: {},
         wishlist: false,
+        loading: true
       }
   },
   methods: {
@@ -91,9 +100,11 @@ export default {
       const item = await axios.get(`${config?.BASEURL}watch/${id}`);
       this.wishlist = await localStorageHelper.checkIfExist(item.data)
       this.item = item.data
+      setTimeout(() => {
+        this.loading = false
+      }, 3000)
     },
     async saveToWishList(item){
-      console.log(item)
       await localStorageHelper.saveToWishList(item)
       this.wishlist = true
     }, 

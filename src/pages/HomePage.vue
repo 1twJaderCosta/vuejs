@@ -78,9 +78,6 @@ export default {
               const res = response?.data?.Search;
               const newList = this.updateList(res, wish)
               this.list = newList
-              // const concatList = this.wishList.concat(res)
-              // const removeDuplicate = concatList.filter((v,i,a)=>a.findIndex(v2=>(v2.imdbID===v.imdbID))===i)
-              // this.list = removeDuplicate
               this.notFound = ''
             } else {
               this.list = []

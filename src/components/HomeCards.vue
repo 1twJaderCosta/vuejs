@@ -103,7 +103,7 @@ export default {
 
 <style scoped>
 .card-image {
-    height: 300px;
+    height: 370px;
     width: 100%;
     padding: 10% 10% 0 10%;
     
