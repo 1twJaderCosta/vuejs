@@ -3,7 +3,7 @@
     <b-form-input
       type="text"
       @input="onChange"
-      v-model="search"
+      v-model="searchDisplay"
       @keydown.down="onArrowDown"
       @keydown.up="onArrowUp"
       @keydown.enter="onEnter"
@@ -27,15 +27,13 @@
         class="autocomplete-result"
         :class="{ 'is-active': i === arrowCounter }"
       >
-        {{ result }}
+        {{ result?.Title }}
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-
   export default {
     name: 'SearchAutocomplete',
     props: {
@@ -55,6 +53,7 @@ import axios from 'axios';
         isOpen: false,
         results: [],
         search: '',
+        searchDisplay: '',
         isLoading: false,
         arrowCounter: -1,
       };
@@ -76,11 +75,12 @@ import axios from 'axios';
     methods: {
       setResult(result) {
         this.search = result;
+        this.searchDisplay = result?.Title
         this.isOpen = false;
       },
       filterResults() {
         this.results = this.items.filter((item) => {
-          return item.toLowerCase().indexOf(this.search.toLowerCase()) > -1;
+          return item?.Title?.toLowerCase().indexOf(this.search?.Title?.toLowerCase()) > -1;
         });
       },
       onChange() {
@@ -113,11 +113,6 @@ import axios from 'axios';
         this.search = this.results[this.arrowCounter];
         this.isOpen = false;
         this.arrowCounter = -1;
-      },
-      async created() {
-        // GET request using axios with async/await
-        const response = await axios.get("https://api.npms.io/v2/search?q=vue");
-        this.totalVuePackages = response.data.total;
       }
     },
   };
