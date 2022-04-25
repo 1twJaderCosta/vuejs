@@ -12,13 +12,13 @@
     <h3 v-if="notFound !== '' " >Results Not Found For "{{ notFound }}"</h3>
     
     <div v-if="notFound || searchWord" class="line"/>
-    <HomeCards :items="list" />
+    <HomeCards identifier="cards" :items="list" />
 
       <div v-if="wishList && wishList.length > 0" class="wishlistdiv" >
         <h3>Your Wishlist</h3>
         <div class="line" />
       </div>
-      <HomeCards :items="wishList" />
+      <HomeCards identifier="wishlist" :items="wishList" />
   </div>
 </template>
 

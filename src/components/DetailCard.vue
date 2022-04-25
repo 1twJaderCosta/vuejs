@@ -1,4 +1,5 @@
 <template>
+  <div>
   <SpinnerGlobal 
   v-if="loading"
   />
@@ -41,14 +42,13 @@
         />
         <p>Awards: {{ item?.Awards }}</p>
         <p>Metascore: {{ item?.Metascore }}</p>
-        <p>imdbRating: {{ item?.imdbRating }}</p>
-        <p>imdbVotes: {{ item?.imdbVotes }}</p>
-        <p>imdbID: {{ item?.imdbID }}</p>
+        <p>Rating: {{ item?.imdbRating }}</p>
+        <p>Votes: {{ item?.imdbVotes }}</p>
+        <p>ID: {{ item?.imdbID }}</p>
         <p>Type: {{ item?.Type }}</p>
         <p>DVD: {{ item?.DVD }}</p>
         <p>BoxOffice: {{ item?.BoxOffice }}</p>
         <p>Production: {{ item?.Production }}</p>
-        <p>Website: {{ item?.Website }}</p>
         <p>Website: {{ item?.Website }}</p>
       </b-col>
     </b-row>
@@ -64,6 +64,7 @@
       </b-col>
     </b-row>
     </b-container>
+    </div>
 </template>
 
 <script>
@@ -84,6 +85,8 @@ export default {
       type: String,
     }
   },
+  deep: true,
+  immediate: true,
   components: {
     SpinnerGlobal,
   },
@@ -98,11 +101,12 @@ export default {
     async getInfo() {
       const id = ((location?.pathname+location?.search).split('detail/')[1] || this.id)
       const item = await axios.get(`${config?.BASEURL}watch/${id}`);
-      this.wishlist = await localStorageHelper.checkIfExist(item.data)
+      const wishlist = await localStorageHelper.checkIfExist(item.data)
       this.item = item.data
+      this.wishlist = wishlist
       setTimeout(() => {
         this.loading = false
-      }, 3000)
+      }, 1000)
     },
     async saveToWishList(item){
       await localStorageHelper.saveToWishList(item)

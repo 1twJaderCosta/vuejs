@@ -4,7 +4,7 @@
         cols="2" 
         v-for="(result, i) in results"
         :key="i"
-        :id="(result?.imdbID)"
+        :id="(result?.imdbID + this?.identifier)"
         @mouseover="() => onMouseHoverCard(result)"
         @mouseleave="() => onMouseLeaveCard(result)"
     >
@@ -13,11 +13,12 @@
         <div class="display-none">
             <h3 @click="() => clickOnCard(result)" >{{ result?.Title }}<h2 >{{ result?.Year }}</h2></h3>  
             <div>
-                <b-button class="btn-detail" v-b-modal="'modal-1'+result?.imdbID" id="bv-modal-1">Detail</b-button>
+                <b-button class="btn-detail" v-b-modal="'modal-1'+result?.imdbID + this?.identifier" id="bv-modal-1">Detail</b-button>
                 <b-button v-if="result?.wishList" @click="() => removeFromWishList(result)" variant="success">Wishlist</b-button>
                 <b-button v-else variant="danger"  @click="() => addToWishList(result)" >Add to Wishlist</b-button>
                 <b-modal 
-                    :id="'modal-1'+ result?.imdbID" 
+                    :id="'modal-1'+ result?.imdbID + this?.identifier" 
+                    :ref="'modal-1'+ result?.imdbID + this?.identifier" 
                     title="Detail" 
                     hide-footer 
                     size="xl"
@@ -27,9 +28,10 @@
                     body-text-variant="light"
                     footer-bg-variant="dark"
                     footer-text-variant="light"
-                    @hide="onClose"
+                    @hide="() => onClose('modal-1'+ result?.imdbID + this?.identifier)"
+                    @show="() => showBody('modal-body'+ result?.imdbID + this?.identifier)"
                 >
-                    <div class="main-div-modal">
+                    <div v-if="display === 'modal-body'+ result?.imdbID + this?.identifier " class="main-div-modal">
                         <DetailCard :id="result?.imdbID" />
                     </div>
                 </b-modal>
@@ -52,50 +54,59 @@ export default {
         type: Array,
         required: false,
         default: () => [],
-      }
+      },
+      identifier: {
+        type: String,
+        required: false,
+        default: () => '',
+      },
   },
   components: {
     DetailCard
   },
   data() {
       return {
-        results: []
+        results: [],
+        display: ''
       }
   },
   watch: {
     items: function (value, oldValue) {
-        console.log("watch", value, oldValue)
         if (value.length !== oldValue.length) {
-            console.log("Entrou", value, oldValue)
             this.results = value;
         } 
     },
   },
   methods: {
       onMouseHoverCard(item){
-          document?.getElementById(item.imdbID)?.getElementsByTagName('img')[0]?.classList.add("card-image-extra")
-          document?.getElementById(item.imdbID)?.getElementsByTagName('div')[0]?.classList.add("info-div")
+          document?.getElementById(item.imdbID + this?.identifier)?.getElementsByTagName('img')[0]?.classList.add("card-image-extra")
+          document?.getElementById(item.imdbID + this?.identifier)?.getElementsByTagName('div')[0]?.classList.add("info-div")
       },
       onMouseLeaveCard(item){
-          document?.getElementById(item.imdbID)?.getElementsByTagName('img')[0]?.classList.remove("card-image-extra")
-          document?.getElementById(item.imdbID)?.getElementsByTagName('div')[0]?.classList.remove("info-div")
+          document?.getElementById(item.imdbID + this?.identifier)?.getElementsByTagName('img')[0]?.classList.remove("card-image-extra")
+          document?.getElementById(item.imdbID + this?.identifier)?.getElementsByTagName('div')[0]?.classList.remove("info-div")
       },
       clickOnCard(item) {
           router.push(`/detail/${item?.imdbID}`)
       },
-      async onClose() {
+      async onClose(id) {
+          console.log(id)
+          //this.$refs[id].hide()
           await this.$parent.getWishList();
       },
       async addToWishList(item){
         await localStorageHelper.saveToWishList(item)
-        this.$parent.getWishList();
+        await this.$parent.getWishList();
       },
       async checkIfExist(item){
           return await localStorageHelper.checkIfExist(item)
       },
       async removeFromWishList(item){
           await localStorageHelper.removeFromWishList(item)
-          this.$parent.getWishList();
+          await this.$parent.getWishList();
+      },
+      showBody(e){
+          this.display = e
       }
   }
 }
