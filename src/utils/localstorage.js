@@ -38,13 +38,8 @@ const saveToWishList = async (item) => {
 } 
 
 const getFromWishList = async () => {
-    let wishlist = await localStorage.getItem("wishlist");
-    if(!wishlist){
-        return []
-    } else {
-        wishlist = JSON.parse(wishlist)
-        return wishlist.list
-    }
+    const { list } = await parseWishList()
+    return list
 }
 
 export default {

@@ -28,7 +28,7 @@
                     body-text-variant="light"
                     footer-bg-variant="dark"
                     footer-text-variant="light"
-                    @hide="() => onClose('modal-1'+ result?.imdbID + this?.identifier)"
+                    @hide="() => onClose()"
                     @show="() => showBody('modal-body'+ result?.imdbID + this?.identifier)"
                 >
                     <div v-if="display === 'modal-body'+ result?.imdbID + this?.identifier " class="main-div-modal">
@@ -89,9 +89,7 @@ export default {
       clickOnCard(item) {
           router.push(`/detail/${item?.imdbID}`)
       },
-      async onClose(id) {
-          console.log(id)
-          //this.$refs[id].hide()
+      async onClose() {
           await this.$parent.getWishList();
       },
       async addToWishList(item){
@@ -114,7 +112,7 @@ export default {
 
 <style scoped>
 .card-image {
-    height: 370px;
+    height: 400px;
     width: 100%;
     padding: 10% 10% 0 10%;
     

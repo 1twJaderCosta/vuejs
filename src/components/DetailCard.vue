@@ -106,7 +106,7 @@ export default {
       this.wishlist = wishlist
       setTimeout(() => {
         this.loading = false
-      }, 1000)
+      }, 500)
     },
     async saveToWishList(item){
       await localStorageHelper.saveToWishList(item)
@@ -151,5 +151,8 @@ export default {
 }
 .backimage:hover {
   cursor: pointer;
+}
+p {
+  color: white;
 }
 </style>

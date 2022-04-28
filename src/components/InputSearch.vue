@@ -4,7 +4,6 @@
     <b-form-input
       type="text"
       @input="onChange"
-      v-model="searchDisplay"
       class="input"
     ></b-form-input>
   </b-container>
@@ -13,18 +12,10 @@
 <script>
   export default {
     name: 'InputSearch',
-    props: {
-      items: {
-        type: Array,
-        required: false,
-        default: () => [],
-      }
-    },
     data() {
       return {
         results: [],
-        search: '',
-        searchDisplay: '',
+        search: ''
       };
     },
     methods: {

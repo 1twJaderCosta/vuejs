@@ -6,7 +6,6 @@
     </div>
     <InputSearch
         @input="getWatch"
-        :items="list"
     />
     <h3 v-if="searchWord !== '' && notFound === '' " >Search Results For "{{ searchWord }}"</h3>
     <h3 v-if="notFound !== '' " >Results Not Found For "{{ notFound }}"</h3>
@@ -76,8 +75,7 @@ export default {
             if (response?.data?.Search?.length > 0){
               const wish = await localStorageHelper.getFromWishList()
               const res = response?.data?.Search;
-              const newList = this.updateList(res, wish)
-              this.list = newList
+              this.list = this.updateList(res, wish)
               this.notFound = ''
             } else {
               this.list = []
